@@ -1,0 +1,41 @@
+# ansible-playbook -vi hosts playbook.yml
+
+- hosts: ecstatic_diffie
+  connection: docker
+  gather_facts: yes
+
+  # load variables from vars file
+  vars_files:
+  - vars.yml
+
+  tasks:
+    - debug: var=ansible_facts
+
+    - name: echo hello ansible
+      ansible.builtin.shell: "echo {{ hello_string }}"
+      register: result
+
+    - name: debug result
+      debug: var=result
+
+    - name: debug result.stdout
+      debug: var=result.stdout
+
+    - name: check pattern
+      assert:
+        that: result.stdout.find(check_word) != -1
+      vars:
+        check_word: "hello ansible!"
+
+    - name: debug OS
+      debug: var=ansible_facts.distribution
+
+    - name: debug OS version
+      debug: var=ansible_distribution_version
+
+    - name: debug OS & OS version
+      debug:
+        msg: "{{ os_distribution }} {{ os_distribution_version }}"
+      vars:
+        os_distribution: "{{ ansible_facts.distribution }}"
+        os_distribution_version: "{{ ansible_distribution_version }}"
